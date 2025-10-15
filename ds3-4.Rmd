@@ -1,0 +1,16 @@
+---
+title: "ds3-4"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+df <- read_xlsx("./3.xlsx", sheet="Table S1 Age", skip=1)
+colnames(df) <- tolower(colnames(df))
+colnames(df) <- gsub(" ", "_", colnames(df))
+mac <- df %>% group_by(mechanism_of_death) %>% summarise(sum(smoothed_suicide_count))
+```
