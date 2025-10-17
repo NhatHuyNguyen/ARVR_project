@@ -32,19 +32,20 @@ lgbt_filename <- "./4 - 2019-lgbt-aihw-suicide-and-self-harm-monitoring-WTI4-sup
 
 colnames_state <- c("State", "ever_n", "ever_percent", "last12_n", "last12_percent", "never_n",
                   "never_percent", "not_say_n", "not_say_percent")
-lgbt_state_thoughts = read_xlsx(lgbt_filename, sheet="S1 State & Territory",
+sheet_state = "S1 State & Territory"
+lgbt_state_thoughts = read_xlsx(lgbt_filename, sheet=sheet_state,
                                 range="B7:J16")
 colnames(lgbt_state_thoughts) <- colnames_state
 
-lgbt_state_plans = read_xlsx(lgbt_filename, sheet="S1 State & Territory",
+lgbt_state_plans = read_xlsx(lgbt_filename, sheet=sheet_state,
                                 range="B19:J28")
 colnames(lgbt_state_plans) <- colnames_state
 
-lgbt_state_attempts = read_xlsx(lgbt_filename, sheet="S1 State & Territory",
+lgbt_state_attempts = read_xlsx(lgbt_filename, sheet=sheet_state,
                                 range="B31:J40")
 colnames(lgbt_state_attempts) <- colnames_state
 
-lgbt_state_harm = read_xlsx(lgbt_filename, sheet="S1 State & Territory",
+lgbt_state_harm = read_xlsx(lgbt_filename, sheet=sheet_state,
                                 range="B43:J52")
 colnames(lgbt_state_harm) <- colnames_state
 lgbt_state_harm[lgbt_state_harm == "n.p."] <- '0'
@@ -153,4 +154,168 @@ sheet_sp_sexual = "S10 Sup serv sexual orientation"
 lgbt_sp_sexual = read_xlsx(lgbt_filename, sheet=sheet_sp_sexual,
                                 range="B5:L12")
 colnames(lgbt_sp_sexual) <- colnames_support_sexual
+```
+
+```{r}
+# ds3 s1 age
+gen_age_reduced <- gen_age %>%
+  group_by(age, sex) %>%
+  summarise(count=sum(smoothed_suicide_count))
+
+gen_age_reduced %>% 
+  ggplot(aes(x=age, y=count, color=sex)) +
+  geom_line(linewidth = 1) + 
+  labs(
+    title="Suicide count by age"
+  )
+```
+```{r}
+# ds3 s2 year
+gen_year_reduced <- gen_year %>%
+  group_by(calendar_year, sex) %>%
+  summarise(count=sum(smoothed_suicide_count))
+
+gen_year_reduced %>% 
+  ggplot(aes(x=calendar_year, y=count, color=sex)) +
+  geom_line(linewidth = 1) + 
+  labs(
+    title="Suicide count by calendar year"
+  )
+```
+
+```{r}
+# ds3 s3 year of birth
+gen_birth_reduced <- gen_year_birth %>%
+  group_by(year_of_birth, sex) %>%
+  summarise(count=sum(smoothed_suicide_count))
+
+gen_birth_reduced %>% 
+  ggplot(aes(x=year_of_birth, y=count, color=sex)) +
+  geom_line(linewidth = 1) + 
+  labs(
+    title="Suicide count by year of birth"
+  )
+```
+
+```{r}
+# ds4 s1 state
+# combine all 4 first
+lgbt_state_thoughts$stage = rep("thoughts", time=nrow(lgbt_state_thoughts))
+lgbt_state_plans$stage = rep("plans", time=nrow(lgbt_state_plans))
+lgbt_state_harm$stage = rep("self-harm", time=nrow(lgbt_state_harm))
+lgbt_state_attempts$stage = rep("attempts", time=nrow(lgbt_state_attempts))
+
+lgbt_state_stages <- bind_rows(lgbt_state_thoughts, lgbt_state_plans, lgbt_state_attempts, lgbt_state_harm)
+lgbt_state_stages <- lgbt_state_stages %>%
+  filter(State != "Australia*")
+
+lgbt_state_stages[lgbt_state_stages == "Tas"] <- "TAS"
+lgbt_state_stages[lgbt_state_stages == "Vic"] <- "VIC"
+
+lgbt_state_stages <- lgbt_state_stages %>% relocate(stage, .after = State)
+
+
+
+# Remove percent columns
+cols_to_remove <- grepl("percent", names(lgbt_state_stages), ignore.case = TRUE)
+lgbt_state_stages <- lgbt_state_stages[, !cols_to_remove]
+
+# remove thoughts and plans
+lgbt_state_stages <- lgbt_state_stages %>%
+  group_by(State) %>%
+  summarise(across(-stage, sum))
+
+lgbt_state_stages_gather <- lgbt_state_stages %>%
+  gather(key=timeframe, value=number, -c(State))
+
+lgbt_state_stages_gather[lgbt_state_stages_gather == "ever_n"] <- "Ever"
+lgbt_state_stages_gather[lgbt_state_stages_gather == "last12_n"] <- "Last 12 months"
+lgbt_state_stages_gather[lgbt_state_stages_gather == "never_n"] <- "Never"
+lgbt_state_stages_gather[lgbt_state_stages_gather == "not_say_n"] <- "Prefer not to say"
+
+lgbt_state_stages_gather %>% 
+  ggplot(aes(x=State, y=number, fill=timeframe)) +
+  geom_bar(position="dodge", stat="identity", colour="black")
+```
+
+
+``` {r}
+# ds4 s4 sexual orientation
+# combine all 4 first
+lgbt_sexual_thoughts$stage = rep("thoughts", time=nrow(lgbt_sexual_thoughts))
+lgbt_sexual_plans$stage = rep("plans", time=nrow(lgbt_sexual_plans))
+lgbt_sexual_harm$stage = rep("self-harm", time=nrow(lgbt_sexual_harm))
+lgbt_sexual_attempts$stage = rep("attempts", time=nrow(lgbt_sexual_attempts))
+
+lgbt_sexual_stages <- bind_rows(lgbt_sexual_thoughts, lgbt_sexual_plans, lgbt_sexual_attempts, lgbt_sexual_harm)
+
+lgbt_sexual_stages <- lgbt_sexual_stages %>% relocate(stage, .after = `Sexual orientation`)
+
+# Remove percent columns
+cols_to_remove <- grepl("percent", names(lgbt_sexual_stages), ignore.case = TRUE)
+lgbt_sexual_stages <- lgbt_sexual_stages[, !cols_to_remove]
+
+# remove thoughts and plans
+lgbt_sexual_stages <- lgbt_sexual_stages %>%
+  group_by(`Sexual orientation`) %>%
+  summarise(across(-stage, sum))
+
+lgbt_sexual_stages_gather <- lgbt_sexual_stages %>%
+  gather(key=timeframe, value=number, -c(`Sexual orientation`))
+
+lgbt_sexual_stages_gather[lgbt_sexual_stages_gather == "ever_n"] <- "Ever"
+lgbt_sexual_stages_gather[lgbt_sexual_stages_gather == "last12_n"] <- "Last 12 months"
+lgbt_sexual_stages_gather[lgbt_sexual_stages_gather == "never_n"] <- "Never"
+lgbt_sexual_stages_gather[lgbt_sexual_stages_gather == "not_say_n"] <- "Prefer not to say"
+
+lgbt_sexual_stages_gather %>%
+  ggplot(aes(x=`Sexual orientation`, y=number, fill=timeframe)) +
+  geom_bar(position="dodge", stat="identity", colour="black")
+```
+
+
+```{r}
+# ds4 s7 support state
+# Remove percent columns
+cols_to_remove <- grepl("_n", names(lgbt_sp_state), ignore.case = TRUE)
+lgbt_sp_state <- lgbt_sp_state[, !cols_to_remove]
+
+lgbt_sp_state[lgbt_sp_state == "Tas"] <- "TAS"
+lgbt_sp_state[lgbt_sp_state == "Vic"] <- "VIC"
+lgbt_sp_state <- lgbt_sp_state %>%
+  filter(State != 'Australia')
+
+lgbt_sp_state_gather <- lgbt_sp_state %>%
+  gather(key=`Type of support`, value=percent, -c(State))
+
+lgbt_sp_state_gather[lgbt_sp_state_gather == "any_percent"] <- "Any services"
+lgbt_sp_state_gather[lgbt_sp_state_gather == "in_person_percent"] <- "In person service"
+lgbt_sp_state_gather[lgbt_sp_state_gather == "pro_tele_percent"] <- "Telephone"
+lgbt_sp_state_gather[lgbt_sp_state_gather == "pro_text_percent"] <- "Text/web service"
+lgbt_sp_state_gather[lgbt_sp_state_gather == "never_percent"] <- "Never"
+
+lgbt_sp_state_gather %>%
+  ggplot(aes(x=State, y=percent, fill=`Type of support`)) +
+  geom_bar(position="dodge", stat="identity", colour="black")
+```
+
+```{r}
+# ds4 s10 support sexual orientation
+# Remove percent columns
+cols_to_remove <- grepl("_n", names(lgbt_sp_sexual), ignore.case = TRUE)
+lgbt_sp_sexual <- lgbt_sp_sexual[, !cols_to_remove]
+
+
+lgbt_sp_sexual_gather <- lgbt_sp_sexual %>%
+  gather(key=`Type of support`, value=percent, -c(`Sexual orientation`))
+
+lgbt_sp_sexual_gather[lgbt_sp_sexual_gather == "any_percent"] <- "Any services"
+lgbt_sp_sexual_gather[lgbt_sp_sexual_gather == "in_person_percent"] <- "In person service"
+lgbt_sp_sexual_gather[lgbt_sp_sexual_gather == "pro_tele_percent"] <- "Telephone"
+lgbt_sp_sexual_gather[lgbt_sp_sexual_gather == "pro_text_percent"] <- "Text/web service"
+lgbt_sp_sexual_gather[lgbt_sp_sexual_gather == "never_percent"] <- "Never"
+
+lgbt_sp_sexual_gather %>%
+  ggplot(aes(x=`Sexual orientation`, y=percent, fill=`Type of support`)) +
+  geom_bar(position="dodge", stat="identity", colour="black")
 ```
