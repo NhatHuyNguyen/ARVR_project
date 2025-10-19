@@ -1,6 +1,6 @@
 ---
 title: "ds3-4"
-output: html_document
+output: html_document:
 ---
 
 ```{r}
@@ -9,18 +9,24 @@ library(readxl)
 ```
 
 ```{r}
-gen_filename <- "./3 - 2025-generations-aihw-suicide-and-self-harm-monitoring-age-period-cohort-analysis.xlsx"
+gen_filename <- "./data/3 - 2025-generations-aihw-suicide-and-self-harm-monitoring-age-period-cohort-analysis.xlsx"
+
+# ds3 table s1 read
 gen_age <- read_xlsx(gen_filename, sheet="Table S1 Age", skip=1)
+
 # reformat col names
 colnames(gen_age) <- tolower(colnames(gen_age))
 colnames(gen_age) <- gsub(" ", "_", colnames(gen_age))
 
+# ds3 table s2 read
 gen_year <- read_xlsx(gen_filename, sheet="Table S2 Calendar Year", skip=1)
 # reformat col names
 colnames(gen_year) <- tolower(colnames(gen_year))
 colnames(gen_year) <- gsub(" ", "_", colnames(gen_year))
 
+# ds3 table s3 read
 gen_year_birth <- read_xlsx(gen_filename, sheet="Table S3 Year of Birth", skip=1)
+
 # reformat col names
 colnames(gen_year_birth) <- tolower(colnames(gen_year_birth))
 colnames(gen_year_birth) <- gsub(" ", "_", colnames(gen_year_birth))
@@ -28,26 +34,36 @@ colnames(gen_year_birth) <- gsub(" ", "_", colnames(gen_year_birth))
 ```
 
 ```{r}
-lgbt_filename <- "./4 - 2019-lgbt-aihw-suicide-and-self-harm-monitoring-WTI4-supplementary-table.xlsx"
+lgbt_filename <- "./data/4 - 2019-lgbt-aihw-suicide-and-self-harm-monitoring-WTI4-supplementary-table.xlsx"
 
-colnames_state <- c("State", "ever_n", "ever_percent", "last12_n", "last12_percent", "never_n",
-                  "never_percent", "not_say_n", "not_say_percent")
+colnames_state <- c("State", "ever_n", "ever_percent", "last12_n", "last12_percent",
+                    "never_n", "never_percent", "not_say_n", "not_say_percent")
+
 sheet_state = "S1 State & Territory"
+
+# read ds4 s1 state, thoughts
 lgbt_state_thoughts = read_xlsx(lgbt_filename, sheet=sheet_state,
                                 range="B7:J16")
+
+# change colname for easier processing
 colnames(lgbt_state_thoughts) <- colnames_state
 
+# read ds4 s1 state, plans
 lgbt_state_plans = read_xlsx(lgbt_filename, sheet=sheet_state,
                                 range="B19:J28")
 colnames(lgbt_state_plans) <- colnames_state
 
+# read ds4 s1 state, attempts
 lgbt_state_attempts = read_xlsx(lgbt_filename, sheet=sheet_state,
                                 range="B31:J40")
 colnames(lgbt_state_attempts) <- colnames_state
 
+# read ds4 s1 state, self-harm
 lgbt_state_harm = read_xlsx(lgbt_filename, sheet=sheet_state,
                                 range="B43:J52")
 colnames(lgbt_state_harm) <- colnames_state
+
+# process np, treat as 0, then convert numeric col to numeric (n.p makes them character)
 lgbt_state_harm[lgbt_state_harm == "n.p."] <- '0'
 lgbt_state_harm <- lgbt_state_harm %>%
       mutate(not_say_n = as.numeric(not_say_n)) %>%
@@ -58,6 +74,8 @@ lgbt_state_harm <- lgbt_state_harm %>%
 colnames_age <- c("Age", "ever_n", "ever_percent", "last12_n", "last12_percent", "never_n",
                   "never_percent", "not_say_n", "not_say_percent")
 sheet_age = "S2 Age groups"
+
+# read ds4 s2 age group sheet, same procedure as above
 lgbt_age_thoughts = read_xlsx(lgbt_filename, sheet=sheet_age,
                                 range="B6:J8")
 colnames(lgbt_age_thoughts) <- colnames_age
@@ -78,6 +96,8 @@ colnames(lgbt_age_harm) <- colnames_age
 colnames_gender <- c("Gender", "ever_n", "ever_percent", "last12_n", "last12_percent",
                      "never_n", "never_percent", "not_say_n", "not_say_percent")
 sheet_gender = "S3 Gender"
+
+# read ds4 s3 gender sheet
 lgbt_gender_thoughts = read_xlsx(lgbt_filename, sheet=sheet_gender,
                                 range="B6:J11")
 colnames(lgbt_gender_thoughts) <- colnames_gender
@@ -99,6 +119,8 @@ colnames_sexual <- c("Sexual orientation", "ever_n", "ever_percent", "last12_n",
                      "last12_percent", "never_n", "never_percent", "not_say_n",
                      "not_say_percent")
 sheet_sexual = "S4 Sexual orientation"
+
+# read ds4 s4 sexual orientation sheet
 lgbt_sexual_thoughts = read_xlsx(lgbt_filename, sheet=sheet_sexual,
                                 range="B6:J13")
 colnames(lgbt_sexual_thoughts) <- colnames_sexual
@@ -121,6 +143,8 @@ colnames_support_state <- c("State", "any_n", "any_percent", "in_person_n",
                      "in_person_percent", "pro_tele_n", "pro_tele_percent", "pro_text_n",
                      "pro_text_percent", "never_n", "never_percent")
 sheet_sp_state = "S7 Support services s&t"
+
+# read ds4 s7 support service by state
 lgbt_sp_state = read_xlsx(lgbt_filename, sheet=sheet_sp_state,
                                 range="B6:L15")
 colnames(lgbt_sp_state) <- colnames_support_state
@@ -131,6 +155,8 @@ colnames_support_age <- c("Age", "any_n", "any_percent", "in_person_n",
                      "in_person_percent", "pro_tele_n", "pro_tele_percent", "pro_text_n",
                      "pro_text_percent", "never_n", "never_percent")
 sheet_sp_age = "S8 Support services age"
+
+# read ds4 s8 support service by age
 lgbt_sp_age = read_xlsx(lgbt_filename, sheet=sheet_sp_age,
                                 range="B5:L7")
 colnames(lgbt_sp_age) <- colnames_support_age
@@ -141,8 +167,10 @@ colnames_support_gender <- c("Gender", "any_n", "any_percent", "in_person_n",
                      "in_person_percent", "pro_tele_n", "pro_tele_percent", "pro_text_n",
                      "pro_text_percent", "never_n", "never_percent")
 sheet_sp_gender = "S9 Support services gender"
+
+# read ds4 s8 support service by gender
 lgbt_sp_gender = read_xlsx(lgbt_filename, sheet=sheet_sp_gender,
-                                range="B4:L9")
+                           range="B4:L9")
 colnames(lgbt_sp_gender) <- colnames_support_gender
 ```
 
@@ -151,13 +179,15 @@ colnames_support_sexual <- c("Sexual orientation", "any_n", "any_percent", "in_p
                      "in_person_percent", "pro_tele_n", "pro_tele_percent", "pro_text_n",
                      "pro_text_percent", "never_n", "never_percent")
 sheet_sp_sexual = "S10 Sup serv sexual orientation"
+
+# read ds4 s10 support service by sexual orientation
 lgbt_sp_sexual = read_xlsx(lgbt_filename, sheet=sheet_sp_sexual,
                                 range="B5:L12")
 colnames(lgbt_sp_sexual) <- colnames_support_sexual
 ```
 
 ```{r}
-# ds3 s1 age
+# ds3 s1 age plotting, group by age, sex, cumsum of suicide count
 gen_age_reduced <- gen_age %>%
   group_by(age, sex) %>%
   summarise(count=sum(smoothed_suicide_count))
@@ -175,14 +205,17 @@ gen_age_reduced %>%
   labs(
     title="Suicide count by age"
   ) + 
-  theme(panel.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(), 
-        plot.title = element_text(face = "bold"))
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    plot.title = element_text(face = "bold")
+  )
 ```
+
 ```{r}
-# ds3 s2 year
+# ds3 s2 year plotting, group by year, sex, cumsum of suicide count
 gen_year_reduced <- gen_year %>%
   group_by(calendar_year, sex) %>%
   summarise(count=sum(smoothed_suicide_count))
@@ -201,15 +234,17 @@ gen_year_reduced %>%
     title="Suicide count by calendar year",
     x="Calendar year"
   ) + 
-  theme(panel.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(), 
-        plot.title = element_text(face = "bold"))
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    plot.title = element_text(face = "bold")
+  )
 ```
 
 ```{r}
-# ds3 s3 year of birth
+# ds3 s3 year of birth plotting, group by YOB, sex, cumsum of suicide count
 gen_birth_reduced <- gen_year_birth %>%
   group_by(year_of_birth, sex) %>%
   summarise(count=sum(smoothed_suicide_count))
@@ -228,59 +263,77 @@ gen_birth_reduced %>%
       by = 8
     ) 
   ) +
-  theme(panel.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank())
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    plot.title = element_text(face = "bold")
+  )
 ```
 
 ```{r}
-# ds4 s1 state
-# combine all 4 first
+# ds4 s1 state plotting code
+
+# add stage column for each of 4 datasets
 lgbt_state_thoughts$stage = rep("thoughts", time=nrow(lgbt_state_thoughts))
 lgbt_state_plans$stage = rep("plans", time=nrow(lgbt_state_plans))
 lgbt_state_harm$stage = rep("self-harm", time=nrow(lgbt_state_harm))
 lgbt_state_attempts$stage = rep("attempts", time=nrow(lgbt_state_attempts))
 
+# combine all 4 types of thoughts
 lgbt_state_stages <- bind_rows(lgbt_state_thoughts, lgbt_state_plans, lgbt_state_attempts, lgbt_state_harm)
+
+# filter out Australia, not plotting total of all states
 lgbt_state_stages <- lgbt_state_stages %>%
   filter(State != "Australia*")
 
+# Reformat some state names for better visualisation
 lgbt_state_stages[lgbt_state_stages == "Tas"] <- "TAS"
 lgbt_state_stages[lgbt_state_stages == "Vic"] <- "VIC"
 
+# Move state to an earlier column
 lgbt_state_stages <- lgbt_state_stages %>% relocate(stage, .after = State)
 
-
-
-# Remove percent columns
+# Remove percent columns, plot n (number) instead
 cols_to_remove <- grepl("percent", names(lgbt_state_stages), ignore.case = TRUE)
 lgbt_state_stages <- lgbt_state_stages[, !cols_to_remove]
 
-# remove thoughts and plans
+# remove thoughts and plans by summarising all of them
 lgbt_state_stages <- lgbt_state_stages %>%
   group_by(State) %>%
   summarise(across(-stage, sum))
 
+# gathering (convert to long table) for plotting
 lgbt_state_stages_gather <- lgbt_state_stages %>%
   gather(key=timeframe, value=number, -c(State))
 
+# Change col name for plotting visulisation
 lgbt_state_stages_gather[lgbt_state_stages_gather == "ever_n"] <- "Ever"
 lgbt_state_stages_gather[lgbt_state_stages_gather == "last12_n"] <- "Last 12 months"
 lgbt_state_stages_gather[lgbt_state_stages_gather == "never_n"] <- "Never"
 lgbt_state_stages_gather[lgbt_state_stages_gather == "not_say_n"] <- "Prefer not to say"
 
+
 lgbt_state_stages_gather %>% 
-  ggplot(aes(x=State, y=number, fill=timeframe)) +
-  geom_bar(position="dodge", stat="identity", colour="black") +
+  ggplot(aes(x="", y=number, fill=timeframe)) +
+  geom_bar(stat="identity", colour="black", position='fill') +
+  coord_polar(theta = "y", start=0) +
+  facet_wrap(~State, strip.position="bottom") +
   labs(
-    title="Prevalence of suicidal thinking among LGBTQA+ (2019) participants by state" 
+    title="Suicidal thinking among LGBTQA+ (2019) participants by state, %",
+    x="",
+    y=""
   ) +
-  theme(panel.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(), 
-        plot.title = element_text(face = "bold"))
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(), 
+    plot.title = element_text(face = "bold"), 
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
 ```
 
 
@@ -314,22 +367,30 @@ lgbt_sexual_stages_gather[lgbt_sexual_stages_gather == "never_n"] <- "Never"
 lgbt_sexual_stages_gather[lgbt_sexual_stages_gather == "not_say_n"] <- "Prefer not to say"
 
 lgbt_sexual_stages_gather %>%
-  ggplot(aes(x=`Sexual orientation`, y=number, fill=timeframe)) +
-  geom_bar(position="dodge", stat="identity", colour="black") + 
+  ggplot(aes(x="", y=number, fill=timeframe)) +
+  geom_bar(position="fill", stat="identity", colour="black") + 
+  facet_wrap(~`Sexual orientation`, strip.position="bottom") + 
+  coord_polar(theta = "y", start=0) +
   labs(
-    title="Suicidal thinking among LGBTQA+ (2019) participants by sexual orientation"
+    title="Suicidal thinking among LGBTQA+ (2019) participants by sexual orientation",
+    x="",
+    y=""
   ) + 
-  theme(panel.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(), 
-        plot.title = element_text(face = "bold"))
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(), 
+    plot.title = element_text(face = "bold"), 
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
 ```
 
 
 ```{r}
-# ds4 s7 support state
-# Remove percent columns
+# ds4 s7 support state plotting
+# Same procedure as above
 cols_to_remove <- grepl("_n", names(lgbt_sp_state), ignore.case = TRUE)
 lgbt_sp_state <- lgbt_sp_state[, !cols_to_remove]
 
@@ -348,21 +409,28 @@ lgbt_sp_state_gather[lgbt_sp_state_gather == "pro_text_percent"] <- "Text/web se
 lgbt_sp_state_gather[lgbt_sp_state_gather == "never_percent"] <- "Never"
 
 lgbt_sp_state_gather %>%
-  ggplot(aes(x=State, y=percent, fill=`Type of support`)) +
-  geom_bar(position="dodge", stat="identity", colour="black") + 
+  ggplot(aes(x="", y=percent, fill=`Type of support`)) +
+  geom_bar(position="fill", stat="identity", colour="black") + 
+  facet_wrap(~State, strip.position="bottom") + 
+  coord_polar(theta = "y", start=0) +
   labs(
-    title='LGBTQA+ (2019) participants who accessed support services for suicide by state'
+    title='LGBTQA+ (2019) participants who accessed support services for suicide by state',
+    x="",
+    y=""
   ) +
-  theme(panel.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(), 
-        plot.title = element_text(face = "bold"))
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(), 
+    plot.title = element_text(face = "bold"), 
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
 ```
 
 ```{r}
-# ds4 s10 support sexual orientation
-# Remove percent columns
+# ds4 s10 support sexual orientation plotting
 cols_to_remove <- grepl("_n", names(lgbt_sp_sexual), ignore.case = TRUE)
 lgbt_sp_sexual <- lgbt_sp_sexual[, !cols_to_remove]
 
@@ -377,14 +445,22 @@ lgbt_sp_sexual_gather[lgbt_sp_sexual_gather == "pro_text_percent"] <- "Text/web 
 lgbt_sp_sexual_gather[lgbt_sp_sexual_gather == "never_percent"] <- "Never"
 
 lgbt_sp_sexual_gather %>%
-  ggplot(aes(x=`Sexual orientation`, y=percent, fill=`Type of support`)) +
-  geom_bar(position="dodge", stat="identity", colour="black") + 
+  ggplot(aes(x="", y=percent, fill=`Type of support`)) +
+  geom_bar(position="fill", stat="identity", colour="black") + 
+  facet_wrap(~`Sexual orientation`, strip.position="bottom") + 
+  coord_polar(theta = "y", start=0) + 
   labs(
-    title="LGBTQA+ WTI4 (2019) participants who accessed support services by sexual orientation"
+    title="LGBTQA+(2019) participants who accessed support by sexual orientation",
+    x="",
+    y=""
   ) +
-  theme(panel.background = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(), 
-        plot.title = element_text(face = "bold"))
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(), 
+    plot.title = element_text(face = "bold"), 
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
 ```
