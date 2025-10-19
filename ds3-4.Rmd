@@ -165,9 +165,21 @@ gen_age_reduced <- gen_age %>%
 gen_age_reduced %>% 
   ggplot(aes(x=age, y=count, color=sex)) +
   geom_line(linewidth = 1) + 
+  scale_x_continuous(
+    breaks = seq(
+      min(gen_age_reduced$age, na.rm = TRUE),
+      max(gen_age_reduced$age, na.rm = TRUE),
+      by = 4
+    ) 
+  ) +
   labs(
     title="Suicide count by age"
-  )
+  ) + 
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(), 
+        plot.title = element_text(face = "bold"))
 ```
 ```{r}
 # ds3 s2 year
@@ -178,9 +190,22 @@ gen_year_reduced <- gen_year %>%
 gen_year_reduced %>% 
   ggplot(aes(x=calendar_year, y=count, color=sex)) +
   geom_line(linewidth = 1) + 
+  scale_x_continuous(
+    breaks = seq(
+      min(gen_year_reduced$calendar_year, na.rm = TRUE),
+      max(gen_year_reduced$calendar_year, na.rm = TRUE),
+      by = 7
+    ) 
+  ) +
   labs(
-    title="Suicide count by calendar year"
-  )
+    title="Suicide count by calendar year",
+    x="Calendar year"
+  ) + 
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(), 
+        plot.title = element_text(face = "bold"))
 ```
 
 ```{r}
@@ -193,8 +218,20 @@ gen_birth_reduced %>%
   ggplot(aes(x=year_of_birth, y=count, color=sex)) +
   geom_line(linewidth = 1) + 
   labs(
-    title="Suicide count by year of birth"
-  )
+    title="Suicide count by year of birth",
+    x="Year of birth"
+  ) + 
+  scale_x_continuous(
+    breaks = seq(
+      min(gen_birth_reduced$year_of_birth, na.rm = TRUE),
+      max(gen_birth_reduced$year_of_birth, na.rm = TRUE),
+      by = 8
+    ) 
+  ) +
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank())
 ```
 
 ```{r}
@@ -235,7 +272,15 @@ lgbt_state_stages_gather[lgbt_state_stages_gather == "not_say_n"] <- "Prefer not
 
 lgbt_state_stages_gather %>% 
   ggplot(aes(x=State, y=number, fill=timeframe)) +
-  geom_bar(position="dodge", stat="identity", colour="black")
+  geom_bar(position="dodge", stat="identity", colour="black") +
+  labs(
+    title="Prevalence of suicidal thinking among LGBTQA+ (2019) participants by state" 
+  ) +
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(), 
+        plot.title = element_text(face = "bold"))
 ```
 
 
@@ -252,7 +297,7 @@ lgbt_sexual_stages <- bind_rows(lgbt_sexual_thoughts, lgbt_sexual_plans, lgbt_se
 lgbt_sexual_stages <- lgbt_sexual_stages %>% relocate(stage, .after = `Sexual orientation`)
 
 # Remove percent columns
-cols_to_remove <- grepl("percent", names(lgbt_sexual_stages), ignore.case = TRUE)
+cols_to_remove <- grepl("_n", names(lgbt_sexual_stages), ignore.case = TRUE)
 lgbt_sexual_stages <- lgbt_sexual_stages[, !cols_to_remove]
 
 # remove thoughts and plans
@@ -270,7 +315,15 @@ lgbt_sexual_stages_gather[lgbt_sexual_stages_gather == "not_say_n"] <- "Prefer n
 
 lgbt_sexual_stages_gather %>%
   ggplot(aes(x=`Sexual orientation`, y=number, fill=timeframe)) +
-  geom_bar(position="dodge", stat="identity", colour="black")
+  geom_bar(position="dodge", stat="identity", colour="black") + 
+  labs(
+    title="Suicidal thinking among LGBTQA+ (2019) participants by sexual orientation"
+  ) + 
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(), 
+        plot.title = element_text(face = "bold"))
 ```
 
 
@@ -296,7 +349,15 @@ lgbt_sp_state_gather[lgbt_sp_state_gather == "never_percent"] <- "Never"
 
 lgbt_sp_state_gather %>%
   ggplot(aes(x=State, y=percent, fill=`Type of support`)) +
-  geom_bar(position="dodge", stat="identity", colour="black")
+  geom_bar(position="dodge", stat="identity", colour="black") + 
+  labs(
+    title='LGBTQA+ (2019) participants who accessed support services for suicide by state'
+  ) +
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(), 
+        plot.title = element_text(face = "bold"))
 ```
 
 ```{r}
@@ -317,5 +378,13 @@ lgbt_sp_sexual_gather[lgbt_sp_sexual_gather == "never_percent"] <- "Never"
 
 lgbt_sp_sexual_gather %>%
   ggplot(aes(x=`Sexual orientation`, y=percent, fill=`Type of support`)) +
-  geom_bar(position="dodge", stat="identity", colour="black")
+  geom_bar(position="dodge", stat="identity", colour="black") + 
+  labs(
+    title="LGBTQA+ WTI4 (2019) participants who accessed support services by sexual orientation"
+  ) +
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(), 
+        plot.title = element_text(face = "bold"))
 ```
